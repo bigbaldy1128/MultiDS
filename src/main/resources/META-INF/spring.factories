@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.qihoo.multids.dbconfig.DataSourceConfiguration,\
+com.qihoo.multids.dbconfig.DbConfig,\
+com.qihoo.multids.dbconfig.DataSourceConfig,\
+com.qihoo.multids.MultiDSIntercepter,\
+com.qihoo.multids.sharding.shardingkey.ShardingKeyByHeaderUserID

@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.val;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
  * Created by wangjinzhao on 2017/7/4.
  */
 @Configuration
+@AutoConfigureBefore(DataSourceAutoConfiguration.class)
 @Data
 public class DataSourceConfig {
     @Autowired

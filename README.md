@@ -43,17 +43,7 @@ multids:
         driver-class-name: com.mysql.jdbc.Driver
         groupId: group1
 ```
-4. 排除数据源的自动配置并在@ComponentScan中添加com.qihoo.multids
-```java
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-@ComponentScan({"com.qihoo.multids","current package"})
-public class DemoApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
-	}
-}
-```
-5. 每一个请求都需要在请求头中添加user-id，查询数据库时会根据这个值进行分片，也可自定义分片key，具体请参考进阶部分
+4. 每一个请求都需要在请求头中添加user-id，查询数据库时会根据这个值进行分片，也可自定义分片key，具体请参考进阶部分
 ## 进阶
 1. 自定义数据源分片算法（自定义类中不能使用@Autowired）
 ```java
