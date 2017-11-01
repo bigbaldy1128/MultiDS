@@ -1,0 +1,21 @@
+multids:
+  data-sources:
+    - id: ds1
+      groupId: group1
+      isDefault: true
+      druid:
+        url: jdbc:mysql://localhost:3306/db1
+        username: root
+        password: ct123!@#
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat,wall,log4j
+    - id: ds2
+      groupId: group1
+      druid:
+        url: jdbc:mysql://localhost:3306/db2
+        username: root
+        password: ct123!@#
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat,wall,log4j
+  sharding-way: mod
+  mapper-locations: classpath:mapper/*
