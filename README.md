@@ -1,14 +1,12 @@
-[![](https://jitpack.io/v/bigbaldy1128/MultiDS.svg)](https://jitpack.io/#bigbaldy1128/MultiDS)
 # MultiDS
+[![](https://jitpack.io/v/bigbaldy1128/MultiDS.svg)](https://jitpack.io/#bigbaldy1128/MultiDS)   
 MultiDS是一个简化多数据源操作的类库，主要特点如下：
 * 零代码侵入性,通过简单的配置即可实现功能
 * 提供两种分片算法（一致性哈希、取模），默认采用一致性Hash算法进行数据分片，并可自定义分片算法
 * 整合了阿里的druid
-
-# 快速示例
+## 如何使用
 1. 安装
-* 外网   
-https://jitpack.io/#bigbaldy1128/MultiDS
+* 外网 Please refer https://jitpack.io/#bigbaldy1128/MultiDS
 * 内网
 ```xml
 <dependency>
@@ -56,7 +54,7 @@ public class DemoApplication {
 }
 ```
 5. 每一个请求都需要在请求头中添加user-id，查询数据库时会根据这个值进行分片，也可自定义分片key，具体请参考进阶部分
-# 进阶
+## 进阶
 1. 自定义数据源分片算法（自定义类中不能使用@Autowired）
 ```java
 public class ModSharding implements ISharding { //需要继承ISharding接口
