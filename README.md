@@ -1,3 +1,4 @@
+[![](https://jitpack.io/v/bigbaldy1128/MultiDS.svg)](https://jitpack.io/#bigbaldy1128/MultiDS)
 # MultiDS
 MultiDS是一个简化多数据源操作的类库，主要特点如下：
 * 零代码侵入性,通过简单的配置即可实现功能
@@ -6,8 +7,8 @@ MultiDS是一个简化多数据源操作的类库，主要特点如下：
 
 # 快速示例
 1. 安装
-* 外网
-
+* 外网   
+https://jitpack.io/#bigbaldy1128/MultiDS
 * 内网
 ```xml
 <dependency>
