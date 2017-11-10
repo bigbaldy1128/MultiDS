@@ -25,28 +25,29 @@ import java.util.Map;
 @Aspect
 @Component
 @Order(100)
-public class MultiDSIntercepter implements InitializingBean {
+public class MultiDSIntercepter {
     @Autowired
     private
     ApplicationContext applicationContext;
     @Autowired
     private DataSourceConfig dataSourceConfig;
 
+    @Autowired
     private IShardingKey shardingKey;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        Map<String, IShardingKey> shardingKeyMap = applicationContext.getBeansOfType(IShardingKey.class, false, false);
-        if (shardingKeyMap.size() == 1) {
-            shardingKey = shardingKeyMap.get("shardingKeyByHeaderUserID");
-        } else {
-            val shardingKeyOptional = shardingKeyMap.keySet().stream().filter(p -> !p.equals("shardingKeyByHeaderUserID")).findFirst();
-            if (!shardingKeyOptional.isPresent()) {
-                throw new ShardingException("没有定义获取分片key的方式");
-            }
-            shardingKey = shardingKeyMap.get(shardingKeyOptional.get());
-        }
-    }
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//        Map<String, IShardingKey> shardingKeyMap = applicationContext.getBeansOfType(IShardingKey.class, false, false);
+//        if (shardingKeyMap.size() == 1) {
+//            shardingKey = shardingKeyMap.get("shardingKeyByHeaderUserID");
+//        } else {
+//            val shardingKeyOptional = shardingKeyMap.keySet().stream().filter(p -> !p.equals("shardingKeyByHeaderUserID")).findFirst();
+//            if (!shardingKeyOptional.isPresent()) {
+//                throw new ShardingException("没有定义获取分片key的方式");
+//            }
+//            shardingKey = shardingKeyMap.get(shardingKeyOptional.get());
+//        }
+//    }
 
     @Before("within(@org.springframework.web.bind.annotation.RestController *) ||" +
             "within(@org.springframework.stereotype.Controller *)")
