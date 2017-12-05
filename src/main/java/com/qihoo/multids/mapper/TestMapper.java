@@ -2,6 +2,7 @@ package com.qihoo.multids.mapper;
 
 import com.qihoo.multids.IMapper;
 import com.qihoo.multids.annotation.DynamicDataSource;
+import com.qihoo.multids.annotation.ShardingKey;
 import com.qihoo.multids.vo.TestVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,5 +14,8 @@ import java.util.List;
 @Mapper
 public interface TestMapper extends IMapper {
     @DynamicDataSource("group1")
-    List<TestVO> queryInfo();
+    List<TestVO> queryInfo(@ShardingKey int id);
+
+    @DynamicDataSource("group1")
+    List<TestVO> queryInfo2(TestVO testVO);
 }

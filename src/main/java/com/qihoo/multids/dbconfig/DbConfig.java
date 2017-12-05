@@ -21,8 +21,12 @@ import java.util.stream.Collectors;
 @MapperScan(basePackages = {"mapper"}, sqlSessionFactoryRef = "sqlSessionFactory")
 public class DbConfig {
 
+    private final DataSourceConfiguration dataSourceConfiguration;
+
     @Autowired
-    private DataSourceConfiguration dataSourceConfiguration;
+    public DbConfig(DataSourceConfiguration dataSourceConfiguration) {
+        this.dataSourceConfiguration = dataSourceConfiguration;
+    }
 
     @Bean
     public SqlSessionFactory sqlSessionFactory(DynamicDataSource dynamicDataSource) throws Exception {

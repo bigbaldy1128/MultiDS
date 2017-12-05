@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface ISharding {
 
-    String route(Long key);
+    String route(int key);
 
     void initNodes(List<String> nodes);
 }

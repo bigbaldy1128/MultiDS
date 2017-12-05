@@ -1,5 +1,6 @@
 package com.qihoo.multids.vo;
 
+import com.qihoo.multids.annotation.ShardingKey;
 import lombok.Data;
 
 /**
@@ -7,5 +8,8 @@ import lombok.Data;
  */
 @Data
 public class TestVO {
+    @ShardingKey
+    private int key;
+
     private String name;
 }

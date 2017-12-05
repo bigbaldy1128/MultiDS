@@ -11,8 +11,8 @@ public class ModSharding implements ISharding {
     private List<String> nodes;
 
     @Override
-    public String route(Long key) {
-        return nodes.get((int) (key % nodes.size()));
+    public String route(int key) {
+        return nodes.get(key % nodes.size());
     }
 
     @Override

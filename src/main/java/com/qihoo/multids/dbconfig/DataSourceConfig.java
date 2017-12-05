@@ -28,14 +28,15 @@ import java.util.stream.Collectors;
 @AutoConfigureBefore(DataSourceAutoConfiguration.class)
 @Data
 public class DataSourceConfig {
-    @Autowired
-    private DataSourceConfiguration dataSourceConfiguration;
-
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final DataSourceConfiguration dataSourceConfiguration;
 
     private Map<String, ISharding> shardingMap;
     private String defaultId;
+
+    @Autowired
+    public DataSourceConfig(DataSourceConfiguration dataSourceConfiguration) {
+        this.dataSourceConfiguration = dataSourceConfiguration;
+    }
 
     @Bean
     public DynamicDataSource dataSource() throws IllegalAccessException, InstantiationException, ShardingException {

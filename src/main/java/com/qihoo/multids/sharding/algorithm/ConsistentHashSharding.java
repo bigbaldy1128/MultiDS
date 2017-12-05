@@ -11,7 +11,7 @@ public class ConsistentHashSharding implements ISharding {
     private ConsistentHash<String> consistentHash;
 
     @Override
-    public String route(Long key) {
+    public String route(int key) {
         return consistentHash.get(key);
     }
 
