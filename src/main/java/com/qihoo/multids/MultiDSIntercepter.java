@@ -49,13 +49,13 @@ public class MultiDSIntercepter {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         DynamicDataSource dynamicDataSource = method.getAnnotation(DynamicDataSource.class);
         if (dynamicDataSource != null) {
-            int key = -1;
+            Object key = null;
             Annotation[][] parameterAnnotations = method.getParameterAnnotations();
             Parameter[] parameters = method.getParameters();
             Object[] args = joinPoint.getArgs();
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 if (Arrays.stream(parameterAnnotations[i]).anyMatch(p -> p instanceof ShardingKey)) {
-                    key = args[i].hashCode();
+                    key = args[i];
                     break;
                 } else {
                     Parameter parameter = parameters[i];
@@ -63,21 +63,17 @@ public class MultiDSIntercepter {
                     for (Field field : clazz.getDeclaredFields()) {
                         if (Arrays.stream(field.getAnnotations()).anyMatch(p->p instanceof ShardingKey)) {
                             field.setAccessible(true);
-                            Object fieldValue = null;
                             try {
-                                fieldValue = field.get(args[i]);
+                                key = field.get(args[i]);
                             } catch (IllegalAccessException e) {
                                 e.printStackTrace();
-                            }
-                            if (fieldValue != null) {
-                                key = fieldValue.hashCode();
                             }
                             break;
                         }
                     }
                 }
             }
-            if (key != -1) {
+            if (key != null) {
                 ISharding sharding = dataSourceConfig.getShardingMap().get(dynamicDataSource.value());
                 DataSourceContextHolder.setDB(sharding.route(key));
             }

@@ -1,11 +1,11 @@
-# MultiDS
+# MultiDS简介
 [![](https://jitpack.io/v/bigbaldy1128/MultiDS.svg)](https://jitpack.io/#bigbaldy1128/MultiDS)   
 MultiDS是一个简化多数据源操作的类库，主要特点如下：
 * 零代码侵入性,通过简单的配置即可实现功能
 * 提供两种分片算法（一致性哈希、取模），默认采用一致性Hash算法进行数据分片，并可自定义分片算法
 * 整合了阿里的druid
-## 如何使用
-1. 安装
+# 如何使用
+## 安装
 * 外网 Please refer https://jitpack.io/#bigbaldy1128/MultiDS
 * 内网
 ```xml
@@ -15,7 +15,7 @@ MultiDS是一个简化多数据源操作的类库，主要特点如下：
     <version>1.0.0</version>
 </dependency>
 ```
-2. 配置Mapper
+## 配置Mapper
 ```java
 @Mapper
 public interface YourMapper extends IMapper { //需要继承IMapper接口
@@ -23,7 +23,7 @@ public interface YourMapper extends IMapper { //需要继承IMapper接口
     List<TestVO> query(@ShardingKey int key); //配置分片key（@ShardingKey也可以标记在类的成员变量上）
 }
 ```
-3. 配置多数据源
+## 配置多数据源
 ```yml
 multids:
   shardingWay: consistentHash #配置分片算法，可选consistentHash或mod，若不配置默认使用一致性哈希算法
@@ -43,7 +43,7 @@ multids:
         driver-class-name: com.mysql.jdbc.Driver
         groupId: group1
 ```
-4. 自定义数据源分片算法
+## 自定义数据源分片算法
 ```java
 public class ModSharding implements ISharding { //需要继承ISharding接口
     @Override
@@ -55,5 +55,38 @@ public class ModSharding implements ISharding { //需要继承ISharding接口
     public void initNodes(List<String> nodes) { //设置数据源节点
         throw new NotImplementedException();
     }
+
+    /**
+     * 获取要迁移的数据信息
+     * @param keys 分片键
+     * @param oldNodes 旧节点
+     * @param newNodes 新节点
+     * @return key：旧节点+🍄+新节点，value：分片键
+     */
+    @Override
+    public Map<String,List<Object>> getMigrationData(List<Object> keys, List<String> oldNodes, List<String> newNodes){
+        throw new NotImplementedException();
+    }
 }
+```
+## 重新平衡数据
+1. 实现数据迁移方法
+```java
+@Migrate(from="ds1",to="ds2") //配置迁移方向，例如从数据源ds1迁移到ds2
+public void migrationData(List<Object> keys){//keys是要迁移的数据分片键，注意函数必须如此定义
+    //实现数据迁移
+}
+```
+2. 调用DBUtils.rebalance方法
+```java
+/**
+* 平衡数据
+*
+* @param sharding 分片方法
+* @param keys     分片键
+* @param oldNodes 旧节点
+* @param newNodes 新节点
+* @throws Exception
+*/
+public static void rebalance(ISharding sharding, List<Object> keys, List<String> oldNodes, List<String> newNodes) throws Exception
 ```
