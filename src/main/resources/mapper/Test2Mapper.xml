@@ -4,9 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qihoo.multids.mapper.TestMapper">
     <select id="queryInfo" resultType="com.qihoo.multids.vo.TestVO">
-        select * from test
+        select * from test_${id}
     </select>
     <select id="queryInfo2" resultType="com.qihoo.multids.vo.TestVO">
         select * from test
     </select>
+    <insert id="inserInfo">
+        insert into test_${id}(name) values
+        <foreach collection="testVO" item="item" index="index"
+                 separator=",">
+            (#{item.name})
+        </foreach>
+    </insert>
 </mapper>

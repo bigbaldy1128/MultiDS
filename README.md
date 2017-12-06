@@ -45,9 +45,9 @@ multids:
 ```
 ## 自定义数据源分片算法
 ```java
-public class ModSharding implements ISharding { //需要继承ISharding接口
+public class CustomSharding<K> implements ISharding<K> { //需要继承ISharding接口
     @Override
-    public String route(Object key) { //根据传入的id(例如用户id)获取目的数据源id
+    public String route(K key) { //根据传入的id(例如用户id)获取目的数据源id
         throw new NotImplementedException();
     }
 
@@ -64,7 +64,7 @@ public class ModSharding implements ISharding { //需要继承ISharding接口
      * @return key：旧节点+🍄+新节点，value：分片键
      */
     @Override
-    public Map<String,List<Object>> getMigrationData(List<Object> keys, List<String> oldNodes, List<String> newNodes){
+    public Map<String, List<K>> getMigrationData(List<K> keys, List<String> oldNodes, List<String> newNodes){
         throw new NotImplementedException();
     }
 }
@@ -72,9 +72,11 @@ public class ModSharding implements ISharding { //需要继承ISharding接口
 ## 重新平衡数据
 1. 实现数据迁移方法
 ```java
-@Migrate(from="ds1",to="ds2") //配置迁移方向，例如从数据源ds1迁移到ds2
-public void migrationData(List<Object> keys){//keys是要迁移的数据分片键，注意函数必须如此定义
-    //实现数据迁移
+public interface IMigrateData<T, K> {
+    List<K> getShardingKeys();//查询所有分片键
+    List<T> query(K key);//根据分片键查询要迁移的数据
+    void delete(K key);//根据分片键删除要迁移的数据
+    void insert(List<T> data, K key);//插入要迁移的数据
 }
 ```
 2. 调用DBUtils.rebalance方法
@@ -82,11 +84,17 @@ public void migrationData(List<Object> keys){//keys是要迁移的数据分片�
 /**
 * 平衡数据
 *
-* @param sharding 分片方法
-* @param keys     分片键
-* @param oldNodes 旧节点
-* @param newNodes 新节点
+* @param sharding    分片算法
+* @param migrateData 数据迁移的具体实现
+* @param oldNodes    旧节点
+* @param newNodes    新节点
+* @param nThreads    线程数
 * @throws Exception
 */
-public static void rebalance(ISharding sharding, List<Object> keys, List<String> oldNodes, List<String> newNodes) throws Exception
+public static <T, K> void rebalance(
+            ISharding<K> sharding,
+            IMigrateData<T, K> migrateData,
+            List<String> oldNodes,
+            List<String> newNodes,
+            int nThreads) throws Exception
 ```

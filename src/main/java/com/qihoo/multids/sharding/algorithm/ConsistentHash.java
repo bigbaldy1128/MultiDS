@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-class ConsistentHash<T>  {
+class ConsistentHash<T,U>  {
     private final HashFunction hashFunction;
     private final int numberOfReplicas;
     private final SortedMap<Long, T> circle = new TreeMap<>();
@@ -36,7 +36,7 @@ class ConsistentHash<T>  {
         }
     }
 
-    T get(Object key) {
+    T get(U key) {
         if (circle.isEmpty()) {
             return null;
         }

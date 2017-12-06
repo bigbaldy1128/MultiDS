@@ -1,47 +1,70 @@
 package com.qihoo.multids.tools;
 
-import com.qihoo.multids.annotation.Migrate;
-import com.qihoo.multids.exception.ShardingException;
+import com.qihoo.multids.dbconfig.DataSourceContextHolder;
 import com.qihoo.multids.sharding.ISharding;
 import lombok.val;
-import org.reflections.Reflections;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class DBUtils {
+
     /**
      * 平衡数据
      *
-     * @param sharding
-     * @param keys     分片键
-     * @param oldNodes 旧节点
-     * @param newNodes 新节点
+     * @param sharding    分片算法
+     * @param migrateData 数据迁移的具体实现
+     * @param oldNodes    旧节点
+     * @param newNodes    新节点
+     * @param nThreads    线程数
      * @throws Exception
      */
-    public static void rebalance(ISharding sharding, List<Object> keys, List<String> oldNodes, List<String> newNodes) throws Exception {
-        val migrationDataMap = sharding.getMigrationData(keys, oldNodes, newNodes);
-        val methods = new Reflections("com.qihoo").getMethodsAnnotatedWith(Migrate.class);
-        Object object = null;
-        val methodOpt = methods.stream().findFirst();
-        if (methodOpt.isPresent()) {
-            object = methodOpt.get().getDeclaringClass().newInstance();
+    public static <T, K> void rebalance(
+            ISharding<K> sharding,
+            IMigrateData<T, K> migrateData,
+            List<String> oldNodes,
+            List<String> newNodes,
+            int nThreads) throws Exception {
+        List<K> keyList = new ArrayList<>();
+        for (String node : oldNodes) {
+            DataSourceContextHolder.setDB(node);
+            keyList.addAll(migrateData.getShardingKeys());
         }
-        if (object == null) {
-            throw new ShardingException("初始化数据迁移类失败");
-        }
-        for (val method : methods) {
-            val annotationOptional = Arrays.stream(method.getAnnotations()).filter(p -> p instanceof Migrate).findFirst();
-            if (annotationOptional.isPresent()) {
-                Migrate migrate = (Migrate) annotationOptional.get();
-                String from = migrate.from();
-                String to = migrate.to();
-                String fromTo = from + "🍄" + to;
-                if (migrationDataMap.containsKey(fromTo)) {
-                    List<Object> _keys = migrationDataMap.get(fromTo);
-                    method.invoke(object, _keys);
+        val migrationDataMap = sharding.getMigrationData(keyList, oldNodes, newNodes);
+        List<String> newList = new ArrayList<>();
+        newList.addAll(oldNodes);
+        newList.addAll(newNodes);
+        ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
+        List<Future<?>> futures = new ArrayList<>();
+        for (String oldNode : oldNodes) {
+            for (String newNode : newList) {
+                String node = oldNode + "🍄" + newNode;
+                val keys = migrationDataMap.get(node);
+                if (keys != null && keys.size() > 0) {
+                    futures.add(executorService.submit(() -> {
+                        for (K key : keys) {
+                            DataSourceContextHolder.setDB(oldNode);
+                            val data = migrateData.query(key);
+                            DataSourceContextHolder.setDB(newNode);
+                            migrateData.insert(data, key);
+                            DataSourceContextHolder.setDB(oldNode);
+                            migrateData.delete(key);
+                        }
+                    }));
                 }
             }
         }
+        futures.forEach(p -> {
+            try {
+                p.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+        executorService.shutdown();
     }
 }

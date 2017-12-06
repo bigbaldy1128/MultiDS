@@ -7,11 +7,11 @@ import java.util.*;
 /**
  * Created by wangjinzhao on 2017/10/31.
  */
-public class ModSharding implements ISharding {
+public class ModSharding<K> implements ISharding<K> {
     private List<String> nodes;
 
     @Override
-    public String route(Object key) {
+    public String route(K key) {
         return nodes.get(key.hashCode() % nodes.size());
     }
 
@@ -21,18 +21,18 @@ public class ModSharding implements ISharding {
     }
 
     @Override
-    public Map<String, List<Object>> getMigrationData(List<Object> keys, List<String> oldNodes, List<String> newNodes) {
-        Map<String, List<Object>> ret = new HashMap<>();
+    public Map<String, List<K>> getMigrationData(List<K> keys, List<String> oldNodes, List<String> newNodes) {
+        Map<String, List<K>> ret = new HashMap<>();
         List<String> newList = new ArrayList<>();
         newList.addAll(oldNodes);
         newList.addAll(newNodes);
-        for (Object key : keys) {
+        for (K key : keys) {
             int hashCode = key.hashCode();
-            int newIndex = hashCode % oldNodes.size();
-            int oldIndex = hashCode % newList.size();
-            if (newIndex != oldIndex) {
-                String node = oldIndex + "🍄" + newIndex;
-                List<Object> migrationData;
+            String oldNode = oldNodes.get(hashCode % oldNodes.size());
+            String newNode = newList.get(hashCode % newList.size());
+            if (!newNode.equals(oldNode)) {
+                String node = oldNode + "🍄" + newNode;
+                List<K> migrationData;
                 if (ret.containsKey(node)) {
                     migrationData = ret.get(node);
                 } else {

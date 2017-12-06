@@ -45,10 +45,10 @@ public class MultiDSIntercepter {
 
     @Before("execution(* com.qihoo.multids.IMapper+.*(..))")
     public void doSwitchDS(JoinPoint joinPoint) {
-        DataSourceContextHolder.setDB(dataSourceConfig.getDefaultId());
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         DynamicDataSource dynamicDataSource = method.getAnnotation(DynamicDataSource.class);
         if (dynamicDataSource != null) {
+            DataSourceContextHolder.setDB(dataSourceConfig.getDefaultId());
             Object key = null;
             Annotation[][] parameterAnnotations = method.getParameterAnnotations();
             Parameter[] parameters = method.getParameters();
